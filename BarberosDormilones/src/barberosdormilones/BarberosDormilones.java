@@ -15,5 +15,7 @@ public class BarberosDormilones {
         inicio.quitarCliente(1);
         inicio.quitarCliente(2);
         inicio.quitarCliente(3);
+        //inicio.actualizarcobro();
+
     }   
 }
