@@ -336,6 +336,16 @@ public class interfaz extends javax.swing.JFrame {
         private void clienteSatisfecho() {
             arrayBarberos[contador - 1] = false;
             System.out.println("Adios, te atendio " + contador);
+            if(contador == 1){
+                actualizarcobro(10, 0, 0);
+            }
+            else if(contador == 2){
+                actualizarcobro(0, 10, 0);
+            }
+            else{
+                actualizarcobro(0, 0, 10);
+            }
+            
             verificarEspera();
         }
 
@@ -384,6 +394,31 @@ public class interfaz extends javax.swing.JFrame {
         }
     }
 
+
+    int b1=10, b2=10, b3=10;    //monto acumulado para barbero 1,2,3
+    int total=0;        // monto acumulado total
+    public void actualizarcobro(int silla1, int silla2, int silla3){
+        if(silla1 == 10 & silla2==0 & silla3 == 0){
+            jLabeLacum1.setText("$ "+String.valueOf(b1));
+            b1 += silla1;
+            total += silla1;
+            jLabeltotal.setText("$ "+String.valueOf(total));
+        }
+        else if(silla1 == 0 & silla2==10 & silla3 == 0){
+            jLabelacum2.setText("$ "+String.valueOf(b2));
+            b2 += silla2;
+            total += silla2;
+            jLabeltotal.setText("$ "+String.valueOf(total));
+        }
+        else{
+             jLabelacum3.setText("$ "+String.valueOf(b3));
+             b3 += silla3;
+             total += silla3;
+             jLabeltotal.setText("$ "+String.valueOf(total));
+        }          
+    }
+
+
     public void actualizarcobro(){
         int preciocorte=10;
         int b1 = 0, b2=0, b3=0;    //monto acumulado para barbero 1,2,3
@@ -394,6 +429,7 @@ public class interfaz extends javax.swing.JFrame {
             jLabelacum3.setText("$ "+String.valueOf(b3));
     }
     
+
     public void activar(int barbero) {
         switch (barbero) {
             case 1: {
@@ -489,6 +525,9 @@ public class interfaz extends javax.swing.JFrame {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
+    
+ 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAgregarProceso;
     private javax.swing.JLabel jLabeLacum1;
