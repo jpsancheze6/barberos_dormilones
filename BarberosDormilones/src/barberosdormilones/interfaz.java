@@ -1,9 +1,17 @@
 package barberosdormilones;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class interfaz extends javax.swing.JFrame {
 
@@ -11,16 +19,23 @@ public class interfaz extends javax.swing.JFrame {
     private Crear c = new Crear();                      // Instancia del hilo para crear clientes
     public boolean[] arrayBarberos = new boolean[3];    // Array para verificar los barberos disponibles
     public boolean[] arrayEspera = new boolean[4];      // Array para verificar las sillas disponibles
-    public DefaultListModel modelo = new DefaultListModel();
+    JLabel stateBarBer;
+    DefaultListModel listModel;
+    JLabel chairStatus;
+    JProgressBar progress;
+    boolean masterChair;
+    int posInList;      // Array para verificar las sillas disponibles
 
     public interfaz() {
         this.setResizable(false);
         initComponents();
+        setTextFieldChanged(nChairsTextBox);
         this.setLocationRelativeTo(null);
-        jLabelEspera1.setVisible(false);
-        jLabelEspera2.setVisible(false);
-        jLabelEspera3.setVisible(false);
-        jLabelEspera4.setVisible(false);
+        jLabelEspera1.setVisible(true);
+        jLabelEspera2.setVisible(true);
+        jLabelEspera3.setVisible(true);
+        jLabelEspera4.setVisible(true);
+        jButtonAgregarProceso.setEnabled(false);
         c.start();
     }
 
@@ -64,6 +79,10 @@ public class interfaz extends javax.swing.JFrame {
         jLabeLacum1 = new javax.swing.JLabel();
         jLabelacum2 = new javax.swing.JLabel();
         jLabelacum3 = new javax.swing.JLabel();
+        nChairsTextBox = new javax.swing.JTextField();
+        nChairsLabel = new javax.swing.JLabel();
+        progressCut = new javax.swing.JProgressBar();
+        inChairLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -190,6 +209,16 @@ public class interfaz extends javax.swing.JFrame {
 
         jLabelacum3.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 12)); // NOI18N
         jPanel1.add(jLabelacum3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 170, 50, 20));
+        jPanel1.add(nChairsTextBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 340, 120, -1));
+
+        nChairsLabel.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 14)); // NOI18N
+        nChairsLabel.setForeground(new java.awt.Color(51, 0, 153));
+        nChairsLabel.setText("Number Chairs:");
+        jPanel1.add(nChairsLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 320, -1, -1));
+        jPanel1.add(progressCut, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 390, -1, -1));
+
+        inChairLabel.setText("En silla:");
+        jPanel1.add(inChairLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 370, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 760, 490));
 
@@ -199,24 +228,82 @@ public class interfaz extends javax.swing.JFrame {
     private void jButtonAgregarProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAgregarProcesoActionPerformed
         // TODO add your handling code here:
         c.nuevoProceso();
+        List<Crear> c = new ArrayList<Crear>();
+        try{
+            Integer.parseInt(nChairsTextBox.getText());
+        }catch(NumberFormatException e){
+            JOptionPane.showMessageDialog(this, "Invalid number");
+            return;
+        }
+        
+        jButtonAgregarProceso.setEnabled(false);
     }//GEN-LAST:event_jButtonAgregarProcesoActionPerformed
 
-    public int disminuir(int semaforo) {
+    public int disminuir(int semaforo, JLabel stateBarBer, DefaultListModel listModel, JLabel chairStatus, JProgressBar progress) {
+        masterChair = false;
+        clientesEspera = 0;
+        this.stateBarBer = stateBarBer;
+        listModel = this.listModel;
+        this.chairStatus = chairStatus;
+        this.progress = progress;
         semaforo--;
         return semaforo;
     }
+    
+    private void setTextFieldChanged(JTextField txt){
+        final JTextField t = txt;
+        DocumentListener documentListener = new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                changeEnabled(de);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                changeEnabled(de);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                changeEnabled(de);
+            }
+        };
+        txt.getDocument().addDocumentListener(documentListener);
+    }
+    
+    private void changeEnabled(DocumentEvent event){
+        DocumentEvent.EventType type = event.getType();
+ 
+        if (type.equals(DocumentEvent.EventType.CHANGE)){
+ 
+        }
+        else if (type.equals(DocumentEvent.EventType.INSERT)){
+            if(nChairsTextBox.getText().length()>0){
+                jButtonAgregarProceso.setEnabled(true);
+            }
+        }
+        else if (type.equals(DocumentEvent.EventType.REMOVE)){
+           if(nChairsTextBox.getText().length()==0){
+                jButtonAgregarProceso.setEnabled(false);
+            } 
+        }
+    }
 
     //Crea un proceso(Cliente)
+    //Crea un proceso(Cliente)
     private class Crear extends Thread {
-
+        
+    List<Crear> x = new ArrayList<Crear>();
         public void run() {
             while (true) {
                 // Inicio semáforo
+                 
                 for (int x = 0; x < arrayBarberos.length; x++) {
                     if (!arrayBarberos[x]) {
                         quitarCliente(x + 1);
                         dormir(x + 1);
-                    } else {
+                    }else{
                         activar(x + 1);
                     }
                 }
@@ -224,18 +311,11 @@ public class interfaz extends javax.swing.JFrame {
                 for (int x = 0; x < arrayEspera.length; x++) {
                     if (!arrayEspera[x]) {
                         desocuparSillaEspera(x + 1);
-                        if (!modelo.isEmpty()) {
-                            ocuparSilla(indexSillaVacia()+1);
-                            modelo.remove(0);
-                            jListProcesosFuera.setModel(modelo);
-                            arrayEspera[x] = true;
-                        }
-
                     }
                 }
             }
         }
-
+        
         private void ocuparSilla(int silla) {
             switch (silla) {
                 case 1:
@@ -286,13 +366,28 @@ public class interfaz extends javax.swing.JFrame {
                     ocuparSilla(contador);
                 } else {
                     // Colocar en línea de espera "afuera"
-                    modelo.addElement("Cliente en espera");
-                    jListProcesosFuera.setModel(modelo);
+                    clientesEspera++;
                 }
             }
         }
     }
 
+    private void clienteEspera(DefaultListModel listModel, JLabel statusBarber, int numCliente){
+        this.listModel=listModel;
+        System.out.println("Bienvenido, nuevo cliente");
+        boolean[] b;
+        arrayBarberos = arrayBarberos;
+        this.arrayEspera=arrayEspera;
+        this.stateBarBer = statusBarber;
+        posInList = numCliente;
+        clientesEspera++;
+        listModel.addElement("Cliente Numero "+numCliente);
+        System.out.println("Hay "+ getCuantosClientes() + " clientes esperando");
+        }
+    
+        public int getCuantosClientes(){
+             return clientesEspera;
+        } 
     /**
      * @param args the command line arguments
      */
@@ -346,14 +441,16 @@ public class interfaz extends javax.swing.JFrame {
         private void clienteSatisfecho() {
             arrayBarberos[contador - 1] = false;
             System.out.println("Adios, te atendio " + contador);
-            if (contador == 1) {
+            if(contador == 1){
                 actualizarcobro(10, 0, 0);
-            } else if (contador == 2) {
+            }
+            else if(contador == 2){
                 actualizarcobro(0, 10, 0);
-            } else {
+            }
+            else{
                 actualizarcobro(0, 0, 10);
             }
-
+            
             verificarEspera();
         }
 
@@ -383,43 +480,6 @@ public class interfaz extends javax.swing.JFrame {
         }
     }
 
-    public boolean sillasEsperaLlenas() {
-        // Analiza si las sillas de espera están vacías o llenas
-        // Regresa false si están ocupadas, o true si hay alguna vacía
-        int contador = 0;
-        if (jLabelEspera1.isVisible()) {
-            contador++;
-        }
-        if (jLabelEspera2.isVisible()) {
-            contador++;
-        }
-        if (jLabelEspera3.isVisible()) {
-            contador++;
-        }
-        if (jLabelEspera4.isVisible()) {
-            contador++;
-        }
-
-        return !(contador == 4);
-    }
-
-    public int indexSillaVacia() {
-        if (!jLabelEspera1.isVisible()) {
-            return 0;
-        }
-        if (!jLabelEspera2.isVisible()) {
-            return 1;
-        }
-        if (!jLabelEspera3.isVisible()) {
-            return 2;
-        }
-        if (!jLabelEspera4.isVisible()) {
-            return 3;
-        }
-
-        return -1;
-    }
-
     public void desocuparSillaEspera(int silla) {
         switch (silla) {
             case 1:
@@ -439,37 +499,41 @@ public class interfaz extends javax.swing.JFrame {
         }
     }
 
-    int b1 = 10, b2 = 10, b3 = 10;    //monto acumulado para barbero 1,2,3
-    int total = 0;        // monto acumulado total
 
-    public void actualizarcobro(int silla1, int silla2, int silla3) {
-        if (silla1 == 10 & silla2 == 0 & silla3 == 0) {
-            jLabeLacum1.setText("$ " + String.valueOf(b1));
+    int b1=10, b2=10, b3=10;    //monto acumulado para barbero 1,2,3
+    int total=0;        // monto acumulado total
+    public void actualizarcobro(int silla1, int silla2, int silla3){
+        if(silla1 == 10 & silla2==0 & silla3 == 0){
+            jLabeLacum1.setText("$ "+String.valueOf(b1));
             b1 += silla1;
             total += silla1;
-            jLabeltotal.setText("$ " + String.valueOf(total));
-        } else if (silla1 == 0 & silla2 == 10 & silla3 == 0) {
-            jLabelacum2.setText("$ " + String.valueOf(b2));
+            jLabeltotal.setText("$ "+String.valueOf(total));
+        }
+        else if(silla1 == 0 & silla2==10 & silla3 == 0){
+            jLabelacum2.setText("$ "+String.valueOf(b2));
             b2 += silla2;
             total += silla2;
-            jLabeltotal.setText("$ " + String.valueOf(total));
-        } else {
-            jLabelacum3.setText("$ " + String.valueOf(b3));
-            b3 += silla3;
-            total += silla3;
-            jLabeltotal.setText("$ " + String.valueOf(total));
+            jLabeltotal.setText("$ "+String.valueOf(total));
         }
+        else{
+             jLabelacum3.setText("$ "+String.valueOf(b3));
+             b3 += silla3;
+             total += silla3;
+             jLabeltotal.setText("$ "+String.valueOf(total));
+        }          
     }
 
-    public void actualizarcobro() {
-        int preciocorte = 10;
-        int b1 = 0, b2 = 0, b3 = 0;    //monto acumulado para barbero 1,2,3
-        int total = 0;        // monto acumulado total
-        jLabeltotal.setText("$ " + String.valueOf(total));
-        jLabeLacum1.setText("$ " + String.valueOf(b1));
-        jLabelacum2.setText("$ " + String.valueOf(b2));
-        jLabelacum3.setText("$ " + String.valueOf(b3));
+
+    public void actualizarcobro(){
+        int preciocorte=10;
+        int b1 = 0, b2=0, b3=0;    //monto acumulado para barbero 1,2,3
+        int total=0;        // monto acumulado total
+            jLabeltotal.setText("$ "+String.valueOf(total));
+            jLabeLacum1.setText("$ "+String.valueOf(b1));
+            jLabelacum2.setText("$ "+String.valueOf(b2));
+            jLabelacum3.setText("$ "+String.valueOf(b3));
     }
+    
 
     public void activar(int barbero) {
         switch (barbero) {
@@ -524,6 +588,39 @@ public class interfaz extends javax.swing.JFrame {
         return 1;
     }
 
+    public synchronized void cortarPelo(int posInList){
+        try {
+            masterChair = true;
+            
+            //quitar 1 cliente de la lista de espera
+            clientesEspera--;
+            listModel.removeElement("Cliente Numero "+posInList);
+            
+            chairStatus.setText("ocupado por cliente "+posInList);
+            //metodo que simula el tiempo en que le corta el pelo a un cliente
+            System.out.println("Barbero cortando el pelo...");
+            stateBarBer.setText("Barbero cortando el pelo...");
+            
+            Random r = new Random();
+            int i = 0;
+            int max = r.nextInt(5000);
+            progress.setMaximum(max);
+            while(i<max){
+                Thread.sleep(1);
+                progress.setValue(i);
+                i++;
+            }
+            
+            //Una ves que termina desocupa su silla de peluquero
+            System.out.println("Servido");
+            System.err.println("Clientes esperando: "+clientesEspera);
+            masterChair = false;
+            chairStatus.setText("desocupado");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(arrayBarberos.getClass().getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public void quitarCliente(int cliente) {
         switch (cliente) {
             case 1:
@@ -566,9 +663,11 @@ public class interfaz extends javax.swing.JFrame {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
-
-
+    
+ 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel inChairLabel;
     private javax.swing.JButton jButtonAgregarProceso;
     private javax.swing.JLabel jLabeLacum1;
     private javax.swing.JLabel jLabel1;
@@ -605,5 +704,8 @@ public class interfaz extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel nChairsLabel;
+    private javax.swing.JTextField nChairsTextBox;
+    private javax.swing.JProgressBar progressCut;
     // End of variables declaration//GEN-END:variables
 }
