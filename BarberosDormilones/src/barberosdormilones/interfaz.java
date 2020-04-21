@@ -1,5 +1,6 @@
 package barberosdormilones;
 
+import java.awt.Color;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -212,8 +213,22 @@ public class interfaz extends javax.swing.JFrame {
         public void run() {
             while (true) {
                 // Inicio semáforo
+                if (!jLabelestado1.getText().equals("Cobrando")) {
+                    jLabelestado1.setForeground(new Color(60, 63, 65));
+                }
+                if (!jLabelestado2.getText().equals("Cobrando")) {
+                    jLabelestado2.setForeground(new Color(60, 63, 65));
+                }
+                if (!jLabelestado3.getText().equals("Cobrando")) {
+                    jLabelestado3.setForeground(new Color(60, 63, 65));
+                }
                 for (int x = 0; x < arrayBarberos.length; x++) {
                     if (!arrayBarberos[x]) {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(interfaz.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         quitarCliente(x + 1);
                         dormir(x + 1);
                     } else {
@@ -225,7 +240,7 @@ public class interfaz extends javax.swing.JFrame {
                     if (!arrayEspera[x]) {
                         desocuparSillaEspera(x + 1);
                         if (!modelo.isEmpty()) {
-                            ocuparSilla(indexSillaVacia()+1);
+                            ocuparSilla(indexSillaVacia() + 1);
                             modelo.remove(0);
                             jListProcesosFuera.setModel(modelo);
                             arrayEspera[x] = true;
@@ -340,20 +355,35 @@ public class interfaz extends javax.swing.JFrame {
             } catch (InterruptedException ex) {
                 Logger.getLogger(interfaz.class.getName()).log(Level.SEVERE, null, ex);
             }
-            clienteSatisfecho();
+            try {
+                clienteSatisfecho();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(interfaz.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
-        private void clienteSatisfecho() {
+        private void clienteSatisfecho() throws InterruptedException {
             arrayBarberos[contador - 1] = false;
             System.out.println("Adios, te atendio " + contador);
-            if (contador == 1) {
-                actualizarcobro(10, 0, 0);
-            } else if (contador == 2) {
-                actualizarcobro(0, 10, 0);
-            } else {
-                actualizarcobro(0, 0, 10);
-            }
 
+            if (contador == 1) {
+                jLabelestado1.setForeground(new Color(29, 184, 29));
+                jLabelestado1.setText("Cobrando");
+                actualizarcobro(10, 0, 0);
+//                jLabelestado1.setForeground(new Color(60, 63, 65)); 
+
+            } else if (contador == 2) {
+                jLabelestado2.setForeground(new Color(29, 184, 29));
+                jLabelestado2.setText("Cobrando");
+                actualizarcobro(0, 10, 0);
+//                jLabelestado2.setForeground(new Color(60, 63, 65)); 
+
+            } else {
+                jLabelestado3.setForeground(new Color(29, 184, 29));
+                jLabelestado3.setText("Cobrando");
+                actualizarcobro(0, 0, 10);
+//                jLabelestado3.setForeground(new Color(60, 63, 65)); 
+            }
             verificarEspera();
         }
 
